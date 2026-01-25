@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import Sidebar from "./components/SideBar";
 import TabsMenu from "./components/TabsMenu";
+
 
 // タスクサンプルデータ
 const sampleTasks = [
@@ -14,7 +14,7 @@ const sampleTasks = [
     id: "1",
     title: "テストタスク",
     description: "テストタスクの説明",
-    due_date: "2025-05-31",
+    due_date: "2026-01-30",
     priority: "medium",
     completed: false,
     important: false,
@@ -24,7 +24,7 @@ const sampleTasks = [
     id: "2",
     title: "テストタスク２",
     description: "テストタスク２の説明",
-    due_date: "2025-06-08",
+    due_date: "2026-02-08",
     priority: "high",
     completed: true,
     important: true,
@@ -48,10 +48,61 @@ const sampleTags = [
   },
 ];
 
+export type FilterType = "all" | "important" | "today" | "scheduled" | "tag";
+
 export default function Home() {
   // タスクとタグの状態
   const [tasks, setTasks] = useState(sampleTasks);
   const [tags, setTags] = useState(sampleTags);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentFilter, setCurrentFilter] = useState<FilterType>("all");
+  const [selectedTagname, setSelectedTagName] = useState<string | null>(null);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = today.toISOString().split("T")[0];
+
+  const handleTagFilter = (tagName: string) => {
+    setCurrentFilter("tag");
+    setSelectedTagName(tagName);
+  };
+
+  const getFilteredTasks = () => {
+    let filtered = tasks.filter(
+      (task) => 
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (task.description &&
+        task.description.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    )
+
+    switch (currentFilter) {
+      case "important":
+        filtered = filtered.filter((task) => task.important);
+        break;
+      case "today":
+        filtered = filtered.filter((task) => task.due_date === todayStr);
+        break;
+      case "scheduled":
+        filtered = filtered.filter((task) => task.due_date && task.due_date !== "");
+        break;
+      case "tag":
+        filtered = filtered.filter((task) => task.tags === selectedTagname);
+        break;
+    }
+
+    return filtered;
+  }
+
+  const filteredTasks = getFilteredTasks();
+
+  const changeFilter = (filter: FilterType) => {
+    setCurrentFilter(filter);
+
+    if (filter === "all") {
+      setSelectedTagName(null);
+    }
+  };
 
   // タグの色情報を取得
   const getTagColors = () => {
@@ -83,12 +134,24 @@ export default function Home() {
         <main className="mt-8">
           <div className="grid gap-6 md:grid-cols-[250px_1fr]">
             {/* サイドバー */}
-            <Sidebar />
+            <Sidebar 
+              currentFilter={currentFilter}
+              tags={tags}
+              selectedTagName={selectedTagname}
+              handleTagFilter={handleTagFilter}
+              changeFilter={changeFilter}
+            />
 
             {/* メインコンテンツ */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">すべてのタスク</h2>
+                <h2 className="text-2xl font-bold">
+                  {currentFilter === "all" && "すべてのタスク"}
+                  {currentFilter === "important" && "重要なタスク"}
+                  {currentFilter === "today" && "今日のタスク"}
+                  {currentFilter === "scheduled" && "予定されたタスク"}
+                  {currentFilter === "tag" && selectedTagname && `タグ: ${selectedTagname}`}
+                </h2>
                 <Button size="sm" className="gap-1" onClick={() => {}}>
                   <Plus className="h-4 w-4" />
                   新しいタスク
@@ -98,11 +161,11 @@ export default function Home() {
                 <Input
                   placeholder="タスクを検索..."
                   className="max-w-xs"
-                  onChange={() => {}}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <TabsMenu tasks={tasks} tagColors={tagColors} />
-              
+              <TabsMenu tasks={filteredTasks} tagColors={tagColors} />
             </div>
           </div>
         </main>
