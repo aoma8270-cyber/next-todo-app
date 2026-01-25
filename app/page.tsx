@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import Sidebar from "./components/SideBar";
 import TabsMenu from "./components/TabsMenu";
+import Header from "./components/Header";
 
 
 // タスクサンプルデータ
@@ -126,11 +127,7 @@ export default function Home() {
     <div className="min-h-screen">
       <div className="container mx-auto p-4 md:p-6">
         {/* ヘッダー */}
-        <header className="flex items-center justify-between py-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold">Next Tasks</h1>
-          </div>
-        </header>
+        <Header />
         <main className="mt-8">
           <div className="grid gap-6 md:grid-cols-[250px_1fr]">
             {/* サイドバー */}
