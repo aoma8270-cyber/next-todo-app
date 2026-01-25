@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
+import Sidebar from "./components/SideBar";
+import TabsMenu from "./components/TabsMenu";
 
 // タスクサンプルデータ
 const sampleTasks = [
@@ -81,13 +83,7 @@ export default function Home() {
         <main className="mt-8">
           <div className="grid gap-6 md:grid-cols-[250px_1fr]">
             {/* サイドバー */}
-            <div className="space-y-4">
-              <Card>
-                <CardContent className="p-4">
-                  <nav className="grid gap-2">サイドバー</nav>
-                </CardContent>
-              </Card>
-            </div>
+            <Sidebar />
 
             {/* メインコンテンツ */}
             <div className="space-y-4">
@@ -105,30 +101,8 @@ export default function Home() {
                   onChange={() => {}}
                 />
               </div>
-              {tasks.length > 0 ? (
-                tasks.map((task) => (
-                  <Card key={task.id} className="p-4">
-                    <CardHeader>タイトル：{task.title}</CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">
-                      <div>内容：{task.description}</div>
-                      <div>期限：{task.due_date}</div>
-                      <div>
-                        ステータス：{task.completed ? "完了" : "未完了"}
-                      </div>
-                      <div>
-                        タグ：
-                        <span className={tagColors[task.tags]?.textColor || ""}>
-                          {task.tags}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  タスクが見つかりません
-                </div>
-              )}
+              <TabsMenu tasks={tasks} tagColors={tagColors} />
+              
             </div>
           </div>
         </main>
