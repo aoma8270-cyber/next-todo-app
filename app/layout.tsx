@@ -17,31 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" suppressContentEditableWarning>
+    <html lang="ja" suppressContentEditableWarning suppressHydrationWarning>
       <body
         className={`${inter.className} antialiased bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900`}
       >
-        {/* app/layout.tsx の return 内、<body> の直後に挿入 */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-(function () {
-  try {
-    var theme = localStorage.getItem('theme');
-    var root = document.documentElement;
-    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (theme === 'dark' || (!theme && prefersDark)) {
-      root.classList.add('dark');
-      root.style.colorScheme = 'dark';
-    } else if (theme === 'light' || (!theme && !prefersDark)) {
-      root.classList.remove('dark');
-      root.style.colorScheme = 'light';
-    }
-  } catch (e) {}
-})();
-`,
-          }}
-        />
+        {/* theme init script moved to app/head.tsx (beforeInteractive) */}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
           <Toaster />

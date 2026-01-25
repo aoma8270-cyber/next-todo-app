@@ -1,6 +1,7 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { useState } from "react";
+import TaskItem from "./TaskItem";
+
 
 type Props = {
   tasks: {
@@ -8,10 +9,10 @@ type Props = {
     title: string;
     description: string;
     due_date: string;
-    priority: string;
+    priority: "low" | "medium" | "high";
     completed: boolean;
     important: boolean;
-    tags: string;
+    tags: string[];
   }[];
   tagColors: Record<
     string,
@@ -20,9 +21,11 @@ type Props = {
       textColor: string;
     }
   >;
+  toggleTaskComplete: (taskId: string) => void;
+  toggleTaskImportantFlag: (taskId: string) => void;
 };
 
-const TabsMenu = ({ tasks, tagColors }: Props) => {
+const TabsMenu = ({ tasks, tagColors, toggleTaskComplete, toggleTaskImportantFlag }: Props) => {
   const [currentTab, setCurrentTab] = useState("all");
 
   const allTasks = tasks;
@@ -40,20 +43,13 @@ const TabsMenu = ({ tasks, tagColors }: Props) => {
       <TabsContent value="all" className="space-y-4">
         {allTasks.length > 0 ? (
           allTasks.map((task) => (
-          <Card key={task.id} className="p-4">
-            <CardHeader>タイトル：{task.title}</CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              <div>内容：{task.description}</div>
-              <div>期限：{task.due_date}</div>
-              <div>ステータス：{task.completed ? "完了" : "未完了"}</div>
-              <div>
-                タグ：
-                <span className={tagColors[task.tags]?.textColor || ""}>
-                  {task.tags}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+            <TaskItem
+              key={task.id}
+              task={task}
+              onToggleComplete={toggleTaskComplete}
+              onToggleImportant={toggleTaskImportantFlag}
+              tagColors={tagColors}
+            />
         ))
       ) : (
         <div className="text-center py-8 text-muted-foreground">
@@ -64,22 +60,13 @@ const TabsMenu = ({ tasks, tagColors }: Props) => {
       <TabsContent value="pending" className="space-y-4">
         {pendingTasks.length > 0 ? (
            pendingTasks.map((task) => (
-             <Card key={task.id} className="p-4">
-               <CardHeader>タイトル：{task.title}</CardHeader>
-               <CardContent className="text-sm text-muted-foreground">
-                 <div>内容：{task.description}</div>
-                 <div>期限：{task.due_date}</div>
-                 <div>ステータス：{task.completed ? "完了" : "未完了"}</div>
-                 <div>
-                   タグ：
-                   <span
-                     className={`${tagColors[task.tags]?.textColor || ""}`}
-                   >
-                     {task.tags}
-                   </span>
-                 </div>
-               </CardContent>
-             </Card>
+            <TaskItem
+              key={task.id}
+              task={task}
+              onToggleComplete={toggleTaskComplete}
+              onToggleImportant={toggleTaskImportantFlag}
+              tagColors={tagColors}
+            />
            ))
          ) : (
            <div className="text-center py-8 text-muted-foreground">
@@ -90,22 +77,13 @@ const TabsMenu = ({ tasks, tagColors }: Props) => {
        <TabsContent value="completed" className="space-y-4">
          {completedTasks.length > 0 ? (
            completedTasks.map((task) => (
-             <Card key={task.id} className="p-4">
-               <CardHeader>タイトル：{task.title}</CardHeader>
-               <CardContent className="text-sm text-muted-foreground">
-                 <div>内容：{task.description}</div>
-                 <div>期限：{task.due_date}</div>
-                 <div>ステータス：{task.completed ? "完了" : "未完了"}</div>
-                 <div>
-                   タグ：
-                   <span
-                     className={`${tagColors[task.tags]?.textColor || ""}`}
-                   >
-                     {task.tags}
-                   </span>
-                 </div>
-               </CardContent>
-             </Card>
+             <TaskItem
+               key={task.id}
+               task={task}
+               onToggleComplete={toggleTaskComplete}
+               onToggleImportant={toggleTaskImportantFlag}
+               tagColors={tagColors}
+             />
            ))
          ) : (
            <div className="text-center py-8 text-muted-foreground">

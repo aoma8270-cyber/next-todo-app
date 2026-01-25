@@ -8,9 +8,17 @@ import Sidebar from "./components/SideBar";
 import TabsMenu from "./components/TabsMenu";
 import Header from "./components/Header";
 
-
 // タスクサンプルデータ
-const sampleTasks = [
+const sampleTasks: {
+  id: string;
+  title: string;
+  description: string;
+  due_date: string;
+  priority: "low" | "medium" | "high";
+  completed: boolean;
+  important: boolean;
+  tags: string[];
+}[] = [
   {
     id: "1",
     title: "テストタスク",
@@ -19,7 +27,7 @@ const sampleTasks = [
     priority: "medium",
     completed: false,
     important: false,
-    tags: "仕事",
+    tags: ["仕事"],
   },
   {
     id: "2",
@@ -29,7 +37,7 @@ const sampleTasks = [
     priority: "high",
     completed: true,
     important: true,
-    tags: "個人",
+    tags: ["個人"],
   },
 ];
 
@@ -70,12 +78,11 @@ export default function Home() {
 
   const getFilteredTasks = () => {
     let filtered = tasks.filter(
-      (task) => 
+      (task) =>
         task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (task.description &&
-        task.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    )
+        (task.description &&
+          task.description.toLowerCase().includes(searchQuery.toLowerCase())),
+    );
 
     switch (currentFilter) {
       case "important":
@@ -85,15 +92,17 @@ export default function Home() {
         filtered = filtered.filter((task) => task.due_date === todayStr);
         break;
       case "scheduled":
-        filtered = filtered.filter((task) => task.due_date && task.due_date !== "");
+        filtered = filtered.filter(
+          (task) => task.due_date && task.due_date !== "",
+        );
         break;
       case "tag":
-        filtered = filtered.filter((task) => task.tags === selectedTagname);
+        filtered = filtered.filter((task) => task.tags.includes(selectedTagname || ""));
         break;
     }
 
     return filtered;
-  }
+  };
 
   const filteredTasks = getFilteredTasks();
 
@@ -123,6 +132,21 @@ export default function Home() {
   console.log("tagColors", tagColors);
   console.log("tags", tags);
 
+  const toggleTaskComplete = (taskId: string) => {
+    setTasks(
+      tasks.map((task) => 
+        task.id === taskId ? { ...task, completed: !task.completed } : task)
+    )
+  }
+
+  const toggleTaskImportantFlag = (taskId: string) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === taskId ? { ...task, important: !task.important } : task
+      )
+    )
+  }
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto p-4 md:p-6">
@@ -131,7 +155,7 @@ export default function Home() {
         <main className="mt-8">
           <div className="grid gap-6 md:grid-cols-[250px_1fr]">
             {/* サイドバー */}
-            <Sidebar 
+            <Sidebar
               currentFilter={currentFilter}
               tags={tags}
               selectedTagName={selectedTagname}
@@ -147,7 +171,9 @@ export default function Home() {
                   {currentFilter === "important" && "重要なタスク"}
                   {currentFilter === "today" && "今日のタスク"}
                   {currentFilter === "scheduled" && "予定されたタスク"}
-                  {currentFilter === "tag" && selectedTagname && `タグ: ${selectedTagname}`}
+                  {currentFilter === "tag" &&
+                    selectedTagname &&
+                    `タグ: ${selectedTagname}`}
                 </h2>
                 <Button size="sm" className="gap-1" onClick={() => {}}>
                   <Plus className="h-4 w-4" />
@@ -162,7 +188,7 @@ export default function Home() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <TabsMenu tasks={filteredTasks} tagColors={tagColors} />
+              <TabsMenu tasks={filteredTasks} tagColors={tagColors} toggleTaskComplete={toggleTaskComplete} toggleTaskImportantFlag={toggleTaskImportantFlag} />
             </div>
           </div>
         </main>
