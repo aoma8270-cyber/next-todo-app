@@ -15,7 +15,7 @@ type Props = {
   toggleTaskComplete: (taskId: string) => void;
   toggleTaskImportantFlag: (taskId: string) => void;
   openEditModal: (task: Task) => void;
-  openDeleteDialog: (task: Task) => void;
+  openDeleteDialog: (taskId: string) => void;
 };
 
 const TabsMenu = ({ tasks, tagColors, toggleTaskComplete, toggleTaskImportantFlag, openEditModal, openDeleteDialog, }: Props) => {
