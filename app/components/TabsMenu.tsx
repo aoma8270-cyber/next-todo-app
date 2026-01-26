@@ -1,19 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { useState } from "react";
 import TaskItem from "./TaskItem";
-
+import { Task } from "../page";
 
 type Props = {
-  tasks: {
-    id: string;
-    title: string;
-    description: string;
-    due_date: string;
-    priority: "low" | "medium" | "high";
-    completed: boolean;
-    important: boolean;
-    tags: string[];
-  }[];
+  tasks: Task[];
   tagColors: Record<
     string,
     {
@@ -23,9 +14,11 @@ type Props = {
   >;
   toggleTaskComplete: (taskId: string) => void;
   toggleTaskImportantFlag: (taskId: string) => void;
+  openEditModal: (task: Task) => void;
+  openDeleteDialog: (task: Task) => void;
 };
 
-const TabsMenu = ({ tasks, tagColors, toggleTaskComplete, toggleTaskImportantFlag }: Props) => {
+const TabsMenu = ({ tasks, tagColors, toggleTaskComplete, toggleTaskImportantFlag, openEditModal, openDeleteDialog, }: Props) => {
   const [currentTab, setCurrentTab] = useState("all");
 
   const allTasks = tasks;
@@ -49,6 +42,8 @@ const TabsMenu = ({ tasks, tagColors, toggleTaskComplete, toggleTaskImportantFla
               onToggleComplete={toggleTaskComplete}
               onToggleImportant={toggleTaskImportantFlag}
               tagColors={tagColors}
+              onEditTask={openEditModal}
+              onDeleteTask={openDeleteDialog}
             />
         ))
       ) : (
@@ -66,6 +61,8 @@ const TabsMenu = ({ tasks, tagColors, toggleTaskComplete, toggleTaskImportantFla
               onToggleComplete={toggleTaskComplete}
               onToggleImportant={toggleTaskImportantFlag}
               tagColors={tagColors}
+              onEditTask={openEditModal}
+              onDeleteTask={openDeleteDialog}
             />
            ))
          ) : (
@@ -83,6 +80,8 @@ const TabsMenu = ({ tasks, tagColors, toggleTaskComplete, toggleTaskImportantFla
                onToggleComplete={toggleTaskComplete}
                onToggleImportant={toggleTaskImportantFlag}
                tagColors={tagColors}
+               onEditTask={openEditModal}
+               onDeleteTask={openDeleteDialog}
              />
            ))
          ) : (

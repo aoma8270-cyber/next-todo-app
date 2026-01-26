@@ -24,21 +24,15 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Task } from "../page";
 
 type Props = {
-  task: {
-    id: string;
-    title: string;
-    description: string;
-    due_date: string;
-    priority: "low" | "medium" | "high";
-    completed: boolean;
-    important: boolean;
-    tags: string[];
-  };
+  task: Task;
   onToggleComplete: (taskId: string) => void;
   onToggleImportant: (taskId: string) => void;
   tagColors: Record<string, { color: string; textColor: string }>;
+  onEditTask: (task: Task) => void;
+  onDeleteTask: (taskId: string) => void;
 };
 
 const TaskItem = ({
@@ -46,6 +40,8 @@ const TaskItem = ({
   onToggleComplete,
   onToggleImportant,
   tagColors,
+  onEditTask,
+  onDeleteTask,
 }: Props) => {
   const {
     id,
@@ -130,7 +126,7 @@ const TaskItem = ({
               )}
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => {}}
+              onClick={() => onEditTask(task)}
             >
               <Pencil className="mr-2 h-4 w-4" />
               <span>編集</span>
@@ -138,7 +134,7 @@ const TaskItem = ({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive"
-              onClick={() => {}}
+              onClick={() => onDeleteTask(id)}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               <span>削除</span>

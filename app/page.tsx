@@ -7,18 +7,21 @@ import { Plus } from "lucide-react";
 import Sidebar from "./components/SideBar";
 import TabsMenu from "./components/TabsMenu";
 import Header from "./components/Header";
+import TaskModal from "./components/TaskModel";
+import DeleteConfirmDialog from "./components/DeleteConfirmDialog";
 
-// タスクサンプルデータ
-const sampleTasks: {
+export type Task = {
   id: string;
   title: string;
-  description: string;
-  due_date: string;
+  description: string | null;
+  due_date: string | null;
   priority: "low" | "medium" | "high";
   completed: boolean;
   important: boolean;
-  tags: string[];
-}[] = [
+  tags?: string[];
+};
+
+const sampleTasks: Task[] = [
   {
     id: "1",
     title: "テストタスク",
@@ -65,7 +68,16 @@ export default function Home() {
   const [tags, setTags] = useState(sampleTags);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentFilter, setCurrentFilter] = useState<FilterType>("all");
-  const [selectedTagname, setSelectedTagName] = useState<string | null>(null);
+  const [selectedTagName, setSelectedTagName] = useState<string | null>(null);
+
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  const [currentEditTask, setCurrentEditTask] = useState<Task | undefined>(
+    undefined,
+  );
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -97,7 +109,9 @@ export default function Home() {
         );
         break;
       case "tag":
-        filtered = filtered.filter((task) => task.tags.includes(selectedTagname || ""));
+        filtered = filtered.filter((task) =>
+          task.tags?.includes(selectedTagName || ""),
+        );
         break;
     }
 
@@ -134,18 +148,72 @@ export default function Home() {
 
   const toggleTaskComplete = (taskId: string) => {
     setTasks(
-      tasks.map((task) => 
-        task.id === taskId ? { ...task, completed: !task.completed } : task)
-    )
-  }
+      tasks.map((task) =>
+        task.id === taskId ? { ...task, completed: !task.completed } : task,
+      ),
+    );
+  };
 
   const toggleTaskImportantFlag = (taskId: string) => {
     setTasks(
       tasks.map((task) =>
-        task.id === taskId ? { ...task, important: !task.important } : task
-      )
-    )
-  }
+        task.id === taskId ? { ...task, important: !task.important } : task,
+      ),
+    );
+  };
+
+  const handleAddTask = (taskData: Omit<Task, "id" | "completed">) => {
+    const newTask: Task = {
+      ...taskData,
+      id: new Date().getTime().toString(),
+      completed: false,
+    };
+    setTasks([...tasks, newTask]);
+  };
+
+  const handleEditTask = (taskData: Omit<Task, "id" | "completed">) => {
+    if (!currentEditTask) return;
+    setTasks(
+      tasks.map((task) =>
+        task.id === currentEditTask.id ? { ...task, ...taskData } : task,
+      ),
+    );
+  };
+
+  const handleSaveTask = (taskData: Omit<Task, "id" | "completed">) => {
+    if (modalMode === "add") {
+      handleAddTask(taskData);
+    } else {
+      handleEditTask(taskData);
+    }
+  };
+
+  const openEditModal = (task: Task) => {
+    setCurrentEditTask(task);
+    setModalMode("edit");
+    setIsTaskModalOpen(true);
+  };
+
+  const openAddModal = () => {
+    setCurrentEditTask(undefined);
+    setModalMode("add");
+    setIsTaskModalOpen(true);
+  };
+
+  const openDeleteDialog = (taskId: string) => {
+    setTaskToDelete(taskId);
+    setIsDeleteDialogOpen(true);
+  };
+
+
+
+  const handleDeleteTask = () => {
+    if (!taskToDelete) return;
+
+    setTasks(tasks.filter((task) => task.id !== taskToDelete));
+    setIsDeleteDialogOpen(false);
+    setTaskToDelete(null);
+  };
 
   return (
     <div className="min-h-screen">
@@ -158,7 +226,7 @@ export default function Home() {
             <Sidebar
               currentFilter={currentFilter}
               tags={tags}
-              selectedTagName={selectedTagname}
+              selectedTagName={selectedTagName}
               handleTagFilter={handleTagFilter}
               changeFilter={changeFilter}
             />
@@ -175,7 +243,7 @@ export default function Home() {
                     selectedTagname &&
                     `タグ: ${selectedTagname}`}
                 </h2>
-                <Button size="sm" className="gap-1" onClick={() => {}}>
+                <Button size="sm" className="gap-1" onClick={openAddModal}>
                   <Plus className="h-4 w-4" />
                   新しいタスク
                 </Button>
@@ -188,8 +256,32 @@ export default function Home() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <TabsMenu tasks={filteredTasks} tagColors={tagColors} toggleTaskComplete={toggleTaskComplete} toggleTaskImportantFlag={toggleTaskImportantFlag} />
+              <TabsMenu
+                tasks={filteredTasks}
+                tagColors={tagColors}
+                toggleTaskComplete={toggleTaskComplete}
+                toggleTaskImportantFlag={toggleTaskImportantFlag}
+                openEditModal={openEditModal}
+                openDeleteDialog={openDeleteDialog}
+              />
             </div>
+            <TaskModal
+              isOpen={isTaskModalOpen}
+              onClose={() => setIsTaskModalOpen(false)}
+              onSave={handleSaveTask}
+              editTask={currentEditTask}
+              mode={modalMode}
+              availableTags={tags.map((tag) => tag.name)}
+              tagColors={tagColors}
+            />
+
+            <DeleteConfirmDialog
+              isOpen={isDeleteDialogOpen}
+              onClose={() => {setIsDeleteDialogOpen(false); setTaskToDelete(null);}}
+              onConfirm={handleDeleteTask}
+              title="タスクの削除"
+              description="このタスクを本当に削除してもよろしいですか？この操作は元に戻せません。"
+            />
           </div>
         </main>
       </div>
