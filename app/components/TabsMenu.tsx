@@ -43,7 +43,7 @@ const TabsMenu = ({ tasks, tagColors, toggleTaskComplete, toggleTaskImportantFla
               onToggleImportant={toggleTaskImportantFlag}
               tagColors={tagColors}
               onEditTask={openEditModal}
-              onDeleteTask={openDeleteDialog}
+              onDeleteTask={() => openDeleteDialog(task.id)}
             />
         ))
       ) : (
