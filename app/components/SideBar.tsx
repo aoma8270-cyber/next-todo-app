@@ -25,6 +25,7 @@ type Props = {
   changeFilter: (filter: FilterType) => void;
   openAddTagModal: () => void;
   openEditTagModal: (tag: TagType) => void;
+  openDeleteTagDialog: (tag: TagType) => void;
 };
 
 const SideBar = ({
@@ -35,6 +36,7 @@ const SideBar = ({
   changeFilter,
   openAddTagModal,
   openEditTagModal,
+  openDeleteTagDialog,
 }: Props) => {
   
   return (
@@ -121,7 +123,7 @@ const SideBar = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-6 hover:text-destructive"
-                    onClick={() => {}}
+                    onClick={() => openDeleteTagDialog(tag)}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     <span className="sr-only">タグを削除</span>

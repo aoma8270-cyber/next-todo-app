@@ -10,6 +10,9 @@ import Header from "./components/Header";
 import TaskModal from "./components/TaskModel";
 import DeleteConfirmDialog from "./components/DeleteConfirmDialog";
 import TagModal, { TagColor } from "./components/TagModal";
+import DeleteTagDialog from "./components/DeleteTagDialog";
+import { set } from "date-fns";
+
 
 export type Task = {
   id: string;
@@ -102,6 +105,9 @@ export default function Home() {
     { id: "indigo", name: "藍", value: "bg-indigo-500" },
     { id: "cyan", name: "水色", value: "bg-cyan-500" },
   ]);
+
+  const [isDeleteTagDialogOpen, setIsDeleteTagDialogOpen] = useState(false);
+  const [tagToDelete, setTagToDelete] = useState<Tag | null>(null);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -263,6 +269,8 @@ export default function Home() {
     const colorValue = `bg-${baseColor}-100 dark:bg-opacity-75`;
     const textColorValue = `text-${baseColor}-700`;
 
+    console.log("handleAddTag:", { name, colorId, selectedColor, baseColor, colorValue, textColorValue });
+
     setTags([
       ...tags,
       {
@@ -285,6 +293,8 @@ export default function Home() {
 
     const colorValue = `bg-${baseColor}-100 dark:bg-opacity-75`;
     const textColorValue = `text-${baseColor}-700`;
+
+    console.log("handleUpdateTag:", { id, name, colorId, selectedColor, baseColor, colorValue, textColorValue });
 
     const oldTag = tags.find((t) => t.id === id);
     if (oldTag && currentFilter === "tag" && selectedTagName === oldTag.name) {
@@ -317,6 +327,30 @@ export default function Home() {
     }
   }
 
+  const openDeleteTagDialog = (tag: Tag) => {
+    setTagToDelete(tag);
+    setIsDeleteTagDialogOpen(true);
+  }
+
+  const handleDeleteTag = () => {
+    if (!tagToDelete) return;
+    setTags(tags.filter((tag) => tag.id !== tagToDelete.id));
+    setTasks(
+      tasks.map((task) => {
+        return task.tags?.includes(tagToDelete.name)
+          ? { ...task, tags: [] }
+          : task;
+      }))
+
+      if (currentFilter === "tag" && selectedTagName === tagToDelete.name) {
+        setCurrentFilter("all");
+        setSelectedTagName(null);
+      }
+
+      setIsDeleteTagDialogOpen(false);
+      setTagToDelete(null);
+    };
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto p-4 md:p-6">
@@ -333,6 +367,7 @@ export default function Home() {
               changeFilter={changeFilter}
               openAddTagModal={openAddTagModal}
               openEditTagModal={openEditTagModal}
+              openDeleteTagDialog={openDeleteTagDialog}
             />
 
             {/* メインコンテンツ */}
@@ -402,6 +437,16 @@ export default function Home() {
               }
               availableColors={availableTagColors}
               editTag={currentEditTag}
+            />
+
+            <DeleteTagDialog
+              isOpen={isDeleteTagDialogOpen}
+              onClose={() => {
+                setIsDeleteTagDialogOpen(false);
+                setTagToDelete(null);
+              }}
+              onConfirm={handleDeleteTag}
+              tagName={tagToDelete?.name || ""}
             />
           </div>
         </main>
