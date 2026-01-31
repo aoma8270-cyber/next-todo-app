@@ -10,7 +10,7 @@ import {
   Tag,
   Trash2,
 } from "lucide-react";
-import { FilterType } from "../page";
+import { FilterType, Tag as TagType } from "../page";
 
 type Props = {
   currentFilter: FilterType;
@@ -23,6 +23,8 @@ type Props = {
   selectedTagName: string | null;
   handleTagFilter: (tagName: string) => void;
   changeFilter: (filter: FilterType) => void;
+  openAddTagModal: () => void;
+  openEditTagModal: (tag: TagType) => void;
 };
 
 const SideBar = ({
@@ -31,6 +33,8 @@ const SideBar = ({
   selectedTagName,
   handleTagFilter,
   changeFilter,
+  openAddTagModal,
+  openEditTagModal,
 }: Props) => {
   
   return (
@@ -108,7 +112,7 @@ const SideBar = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-6 ml-1"
-                    onClick={() => {}}
+                    onClick={() => openEditTagModal(tag)}
                   >
                     <Pencil className="h-3.5 w-3.5" />
                     <span className="sr-only">タグを編集</span>
@@ -129,7 +133,7 @@ const SideBar = ({
               variant="ghost"
               size="sm"
               className="justify-start gap-2 h-8 text-muted-foreground"
-              onClick={() => {}}
+              onClick={openAddTagModal}
             >
               <Tag className="h-3.5 w-3.5" />
               <span>新しいタグ</span>
